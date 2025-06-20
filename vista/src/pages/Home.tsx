@@ -2,6 +2,7 @@ import { Navbar } from '../components/Navbar';
 import Button from "../components/ui/Button";
 
 export const Home = () => {
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-[#1a002e] to-[#220044] flex flex-col">
       <Navbar />
