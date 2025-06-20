@@ -1,4 +1,3 @@
-import React from 'react';
 import logo from "../assets/logoarieswhite.png";
 import logoletra from "../assets/logoletrawhite.png";
 import Button from "../components/ui/Button";
@@ -19,8 +18,8 @@ export const Navbar = () => {
 
       {/* Sección derecha - Botones de acción */}
       <div className="flex items-center space-x-[10px] pr-[20px]"> {/* Añadido pr-[20px] para padding derecho */}
-        <Button variant="secondary" className="text-[#FFFF] hover:text-[#FFFFF] transition">Iniciar Sesion</Button>
-        <Button variant="primary" className="text-[#FFFF] hover:text-[#FFFFF] transition">Registrarse</Button>
+        <Button variant="secondary" >Iniciar Sesion</Button>
+        <Button variant="primary">Registrarse</Button>
       </div>
     </nav>
   );

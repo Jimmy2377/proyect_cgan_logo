@@ -33,13 +33,14 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       disabled={disabled}
       className={`
-        ${sizeClasses[size]} 
-        ${buttonStyles[variant]} 
         ${className}
+        ${sizeClasses[size]} 
+        ${buttonStyles[variant]}
       `.replace(/\s+/g, ' ').trim()}
     >
       {children}
     </button>
   );
 };
+
 export default Button;
