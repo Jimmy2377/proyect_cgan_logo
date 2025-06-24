@@ -1,34 +1,36 @@
 import { useState } from "react";
-import { X, Mail, Lock, Eye, EyeOff, Globe } from "lucide-react";
+import { X, Mail, Globe } from "lucide-react";
+import { registrarConEmail, registrarConGoogle } from "../../../controlador/auth.controller";
 
 interface RegistroFormProps {
   onClose?: () => void;
-  onRegister?: (email: string, password: string) => void;
-  onGoogleRegister?: () => void;
 }
 
-const RegistroModal: React.FC<RegistroFormProps> = ({
-  onClose,
-  onRegister,
-  onGoogleRegister,
-}) => {
+const RegistroModal: React.FC<RegistroFormProps> = ({ onClose }) => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [mensajeError, setMensajeError] = useState("");
 
   const handleSubmit = async () => {
-    if (email && password) {
-      setIsLoading(true);
-      setTimeout(() => {
-        onRegister?.(email, password);
-        setIsLoading(false);
-      }, 1000);
+    if (!email) return;
+    setIsLoading(true);
+    const resultado = await registrarConEmail(email);
+    setIsLoading(false);
+
+    if (!resultado.ok) {
+      setMensajeError(resultado.error || "Ha ocurrido un error");
+    } else {
+      setMensajeError("");
+      alert("Se ha enviado un enlace de acceso a tu correo electrónico.");
+      onClose?.();
     }
   };
 
-  const handleGoogleRegister = () => {
-    onGoogleRegister?.();
+  const handleGoogleRegister = async () => {
+    const resultado = await registrarConGoogle();
+    if (!resultado.ok) {
+      setMensajeError(resultado.error || "No se pudo autenticar con Google");
+    }
   };
 
   const modalStyles = `
@@ -67,7 +69,6 @@ const RegistroModal: React.FC<RegistroFormProps> = ({
           style={{
             backgroundColor: "white",
             color: "black",
-            border: "2px solid red",
             borderRadius: "1.5rem",
             boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
             width: "100%",
@@ -101,6 +102,11 @@ const RegistroModal: React.FC<RegistroFormProps> = ({
             <p style={{ fontSize: "0.875rem", color: "#6B7280", marginTop: "0.25rem" }}>
               Únete para disfrutar la experiencia
             </p>
+            {mensajeError && (
+              <p style={{ color: "#DC2626", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+                {mensajeError}
+              </p>
+            )}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
@@ -128,54 +134,12 @@ const RegistroModal: React.FC<RegistroFormProps> = ({
                 }}
               />
             </div>
-
-            <div style={{ position: "relative", width: "100%" }}>
-              <Lock
-                size={20}
-                style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF" }}
-              />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Contraseña"
-                required
-                style={{
-                  width: "100%",
-                  boxSizing: "border-box",
-                  paddingLeft: "3rem",
-                  paddingRight: "3rem",
-                  height: "40px",
-                  borderRadius: "9999px",
-                  backgroundColor: "#f9fafb",
-                  color: "#111827",
-                  border: "1px solid #D1D5DB",
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                style={{
-                  position: "absolute",
-                  right: "1rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#9CA3AF",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
           </div>
 
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={isLoading || !email || !password}
+            disabled={isLoading || !email}
             style={{
               width: "100%",
               height: "40px",
@@ -184,8 +148,8 @@ const RegistroModal: React.FC<RegistroFormProps> = ({
               color: "white",
               fontWeight: "600",
               border: "none",
-              cursor: isLoading || !email || !password ? "not-allowed" : "pointer",
-              opacity: isLoading || !email || !password ? 0.5 : 1,
+              cursor: isLoading || !email ? "not-allowed" : "pointer",
+              opacity: isLoading || !email ? 0.5 : 1,
               transform: "scale(1)",
               transition: "all 0.2s",
             }}
@@ -203,10 +167,10 @@ const RegistroModal: React.FC<RegistroFormProps> = ({
                     animation: "spin 1s linear infinite",
                   }}
                 ></div>
-                Registrando...
+                Enviando...
               </div>
             ) : (
-              "Registrarse"
+              "Registrarse con correo"
             )}
           </button>
 
