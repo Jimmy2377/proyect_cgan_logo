@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Plus, User } from "lucide-react";
+import { dashboardStyles } from "../styles/dashboardStyles";
+import logoletra  from "../assets/logoletrawhite.png";
 
 // Tipos para los props del Sidebar
 interface SidebarProps {
@@ -15,64 +17,53 @@ interface SidebarProps {
 // Componente Sidebar reutilizable
 const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject }: SidebarProps) => {
   return (
-    <div className={`
-      fixed left-0 top-0 h-full bg-purple-900 text-white transition-all duration-300 ease-in-out z-50
-      ${isExpanded ? 'w-64' : 'w-16'}
-    `}>
-      <div className="flex flex-col h-full">
+    <div className={dashboardStyles.sidebar.container(isExpanded)}>
+      <div className={dashboardStyles.common.flexCol + " h-full"}>
         {/* Header */}
-        <div className="p-4 border-b border-purple-700">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={onToggle}
-              className="p-2 rounded-lg hover:bg-purple-800 transition-colors"
-              aria-label={isExpanded ? "Minimizar menú" : "Expandir menú"}
-            >
-              {isExpanded ? (
-                <ChevronLeft className="w-5 h-5" />
-              ) : (
-                <ChevronRight className="w-5 h-5" />
-              )}
-            </button>
-            
-            {isExpanded && (
-              <div className="flex-1 ml-4">
-                <img 
-                  src="https://via.placeholder.com/120x40/6366f1/ffffff?text=LOGO" 
-                  alt="Logo" 
-                  className="h-8 w-auto"
-                />
-              </div>
+        <div className={dashboardStyles.sidebar.header(isExpanded)}>
+          {isExpanded && (
+            <div className="flex-1 ml-4">
+              <img 
+                src={logoletra}
+                className={dashboardStyles.sidebar.logo}
+              />
+            </div>
+          )}
+          <button
+            onClick={onToggle}
+            className={dashboardStyles.sidebar.toggleButton}
+            aria-label={isExpanded ? "Minimizar menú" : "Expandir menú"}
+          >
+            {isExpanded ? (
+              <ChevronLeft className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
             )}
-          </div>
+          </button>
         </div>
 
         {/* New Project Button */}
-        <div className="p-4">
+        <div className={isExpanded ? "px-[33px] py-4" : "px-1 py-4 flex justify-center"}>
           <button
             onClick={onNewProject}
-            className={`
-              bg-purple-600 hover:bg-purple-700 transition-colors rounded-full
-              flex items-center justify-center
-              ${isExpanded ? 'w-full px-4 py-3' : 'w-12 h-12'}
-            `}
+            className={dashboardStyles.sidebar.newProjectButton(isExpanded)}
             aria-label="Nuevo proyecto"
           >
-            <Plus className="w-5 h-5 flex-shrink-0" />
+            <Plus className="w-4 h-4 flex-shrink-0" />
             {isExpanded && (
-              <span className="ml-2 font-medium">Nuevo Proyecto</span>
+              <span className="ml-2">Nuevo Proyecto</span>
             )}
           </button>
         </div>
 
         {/* Projects Section */}
-        <div className="flex-1 px-4">
+        <div className={dashboardStyles.sidebar.projectsSection(isExpanded)}>
           {isExpanded && (
             <div>
-              <h3 className="text-sm font-semibold text-purple-300 mb-3 uppercase tracking-wider">
+              <h3 className={dashboardStyles.sidebar.projectsTitle}>
                 Proyectos
               </h3>
-              <div className="text-purple-300 text-sm italic">
+              <div className={dashboardStyles.sidebar.noProjects}>
                 No hay proyectos aún...
               </div>
             </div>
@@ -80,19 +71,15 @@ const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject }: Sidebar
         </div>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-purple-700">
+        <div className={dashboardStyles.sidebar.userFooter(isExpanded)}>
           <button
             onClick={onLogout}
-            className={`
-              bg-purple-600 hover:bg-purple-700 transition-colors rounded-full
-              flex items-center w-full
-              ${isExpanded ? 'px-4 py-3 justify-start' : 'w-12 h-12 justify-center'}
-            `}
+            className={dashboardStyles.sidebar.userButton(isExpanded)}
             aria-label={isExpanded ? `Cerrar sesión - ${user?.email}` : "Usuario"}
           >
-            <User className="w-5 h-5 flex-shrink-0" />
+            <User className="w-4 h-4 flex-shrink-0" />
             {isExpanded && user?.email && (
-              <span className="ml-3 text-sm truncate">
+              <span className={"ml-3 text-sm " + dashboardStyles.common.textTruncate}>
                 {user.email}
               </span>
             )}
@@ -136,14 +123,14 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-lg text-gray-600">Cargando...</div>
+      <div className={dashboardStyles.main.loading}>
+        <div className={dashboardStyles.main.loadingText}>Cargando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#1a002e] overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         isExpanded={sidebarExpanded}
@@ -154,18 +141,15 @@ export default function Dashboard() {
       />
 
       {/* Main Content */}
-      <div className={`
-        transition-all duration-300 ease-in-out
-        ${sidebarExpanded ? 'ml-64' : 'ml-16'}
-      `}>
-        <div className="p-8">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+      <div className={dashboardStyles.main.container(sidebarExpanded)}>
+        <div className={dashboardStyles.main.content}>
+          <div className={dashboardStyles.main.maxWidth}>
+            <h1 className={dashboardStyles.main.title}>
               Dashboard
             </h1>
             
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            <div className={dashboardStyles.main.welcomeCard}>
+              <h2 className={dashboardStyles.main.welcomeTitle}>
                 ¡Bienvenido, {user?.email}!
               </h2>
             </div>
@@ -176,7 +160,7 @@ export default function Dashboard() {
       {/* Overlay para móviles cuando el sidebar está expandido */}
       {sidebarExpanded && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className={dashboardStyles.main.overlay}
           onClick={toggleSidebar}
         />
       )}
