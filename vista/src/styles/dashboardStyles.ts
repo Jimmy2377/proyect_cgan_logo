@@ -3,12 +3,12 @@ export const dashboardStyles = {
   // Sidebar styles
   sidebar: {
     container: (isExpanded: boolean) => `
-      fixed left-0 top-0 h-screen bg-[#1D143B] text-[#FFFFFF] transition-all duration-600 ease-in-out z-50
+      fixed left-0 top-0 h-screen bg-[#1D143B] text-[#FFFFFF] transition-all duration-500 ease-in-out z-50
       ${isExpanded ? 'w-64' : 'w-9'}
     `,
     header: (isExpanded: boolean) => `
-      pt-[20px] pb-12 flex items-center justify-between
-      ${isExpanded ? 'px-[33px]' : 'px-1'}
+      pt-[20px] pb-[32px] flex items-center justify-between
+      ${isExpanded ? 'px-[33px]' : 'px-[5px]'}
     `,
     toggleButton: "text-[#FFFFFF] hover:text-[#FFFFFF] bg-transparent border-none outline-none focus:outline-none",
     logo: "h-full max-h-[30px] w-auto",
@@ -40,17 +40,25 @@ export const dashboardStyles = {
     `,
   },
 
+  // Header styles
+  header: {
+    container: (_sidebarExpanded: boolean) => `
+      fixed top-0 bg-[#1a002e] z-40 transition-none
+      ml-[66px] pl-12 pt-[20px]
+    `,
+    content: "flex items-center p-6",
+    logo: "h-[50px] w-auto",
+  },
+
   // Main content styles
   main: {
-    container: (sidebarExpanded: boolean) => `
-      min-h-screen transition-all duration-300 ease-in-out
-      ${sidebarExpanded ? 'ml-64 pl-8' : 'ml-9 pl-12'}
+    container: (_sidebarExpanded: boolean) => `
+      min-h-screen bg-[#1a002e] transition-none
+      ml-[66px] pl-12 pt-[86px]
     `,
-    content: "p-8",
-    maxWidth: "max-w-4xl mx-auto",
-    title: "text-3xl font-bold text-[#FFFFFF] mb-6",
-    welcomeCard: "bg-[#1D143B] rounded-lg shadow-sm p-6",
-    welcomeTitle: "text-xl font-semibold text-[#FFFFFF] mb-4",
+    content: "h-[calc(100vh-86px)] flex items-center justify-center p-8",
+    welcomeContainer: "text-center",
+    welcomeTitle: "text-3xl font-bold text-[#FFFFFF]",
     overlay: "fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden",
     loading: "min-h-screen flex items-center justify-center bg-[#1a002e]",
     loadingText: "text-lg text-[#FFFFFF]",

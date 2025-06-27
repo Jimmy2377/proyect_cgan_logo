@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Plus, User } from "lucide-react";
 import { dashboardStyles } from "../styles/dashboardStyles";
 import logoletra  from "../assets/logoletrawhite.png";
+import logoisotipo from "../assets/logoarieswhite.png";
 
 // Tipos para los props del Sidebar
 interface SidebarProps {
@@ -140,19 +141,24 @@ export default function Dashboard() {
         onNewProject={handleNewProject}
       />
 
+      {/* Header */}
+      <div className={dashboardStyles.header.container(sidebarExpanded)}>
+        <div className={dashboardStyles.header.content}>
+          <img 
+            src={logoisotipo}
+            className={dashboardStyles.header.logo}
+            alt="Logo"
+          />
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className={dashboardStyles.main.container(sidebarExpanded)}>
         <div className={dashboardStyles.main.content}>
-          <div className={dashboardStyles.main.maxWidth}>
-            <h1 className={dashboardStyles.main.title}>
-              Dashboard
-            </h1>
-            
-            <div className={dashboardStyles.main.welcomeCard}>
-              <h2 className={dashboardStyles.main.welcomeTitle}>
-                ¡Bienvenido, {user?.email}!
-              </h2>
-            </div>
+          <div className={dashboardStyles.main.welcomeContainer}>
+            <h2 className={dashboardStyles.main.welcomeTitle}>
+              ¡Bienvenido, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email}!
+            </h2>
           </div>
         </div>
       </div>
