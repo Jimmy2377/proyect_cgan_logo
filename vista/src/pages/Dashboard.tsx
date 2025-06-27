@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft, Plus, User } from "lucide-react";
 import { dashboardStyles } from "../styles/dashboardStyles";
 import logoletra  from "../assets/logoletrawhite.png";
 import logoisotipo from "../assets/logoarieswhite.png";
+import { MultiStepForm } from "../components/MultiStepForm";
 
 // Tipos para los props del Sidebar
 interface SidebarProps {
@@ -96,6 +97,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1); // control del paso
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user }, error }) => {
@@ -130,6 +132,19 @@ export default function Dashboard() {
     );
   }
 
+  //Estados y lógica de navegación del formulario
+  const goToNextPage = () => {
+  if (currentPage < 5) {
+    setCurrentPage(prev => prev + 1);
+  }
+};
+
+const goToPreviousPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(prev => prev - 1);
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#1a002e] overflow-hidden">
       {/* Sidebar */}
@@ -154,14 +169,16 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className={dashboardStyles.main.container(sidebarExpanded)}>
-        <div className={dashboardStyles.main.content}>
-          <div className={dashboardStyles.main.welcomeContainer}>
-            <h2 className={dashboardStyles.main.welcomeTitle}>
-              ¡Bienvenido, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email}!
-            </h2>
-          </div>
+        <div>
+          <MultiStepForm
+            currentPage={currentPage}
+            goToNextPage={goToNextPage}
+            goToPreviousPage={goToPreviousPage}
+            user={user}
+          />
         </div>
       </div>
+
 
       {/* Overlay para móviles cuando el sidebar está expandido */}
       {sidebarExpanded && (

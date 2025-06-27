@@ -56,9 +56,6 @@ export const dashboardStyles = {
       min-h-screen bg-[#1a002e] transition-none
       ml-[66px] pl-12 pt-[86px]
     `,
-    content: "h-[calc(100vh-86px)] flex items-center justify-center p-8",
-    welcomeContainer: "text-center",
-    welcomeTitle: "text-3xl font-bold text-[#FFFFFF]",
     overlay: "fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden",
     loading: "min-h-screen flex items-center justify-center bg-[#1a002e]",
     loadingText: "text-lg text-[#FFFFFF]",
