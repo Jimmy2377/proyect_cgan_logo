@@ -43,7 +43,7 @@ export const dashboardStyles = {
   // Header styles
   header: {
     container: (_sidebarExpanded: boolean) => `
-      fixed top-0 bg-[#1a002e] z-40 transition-none
+      fixed top-0 bg-transparent z-40 transition-none
       ml-[66px] pl-12 pt-[20px]
     `,
     content: "flex items-center p-6",

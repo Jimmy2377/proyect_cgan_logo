@@ -8,11 +8,11 @@ interface ProgressStepsProps {
 
 export function ProgressSteps({ currentStep, totalSteps }: ProgressStepsProps) {
   const steps = [
-    { id: 1, title: "Inicio del Proceso" },
-    { id: 2, title: "Validación de Datos" },
-    { id: 3, title: "Procesamiento" },
-    { id: 4, title: "Revisión Final" },
-    { id: 5, title: "Completado" }
+    { id: 1, title: "Datos de la marca" },
+    { id: 2, title: "Tipo de logo" },
+    { id: 3, title: "Paleta de colores" },
+    { id: 4, title: "Sector y Preferencias" },
+    { id: 5, title: " ✨ Logo generado" }
   ];
 
   return (
@@ -99,7 +99,7 @@ export function ProgressSteps({ currentStep, totalSteps }: ProgressStepsProps) {
                   fontWeight: '500',
                   textAlign: 'center',
                   lineHeight: '1.2',
-                  color: step.id <= currentStep ? '#2563eb' : '#9ca3af'
+                  color: step.id <= currentStep ? '#59ffee' : '#9ca3af'
                 }}
               >
                 Paso {step.id}
