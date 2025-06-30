@@ -9,9 +9,9 @@ interface ProgressStepsProps {
 export function ProgressSteps({ currentStep, totalSteps }: ProgressStepsProps) {
   const steps = [
     { id: 1, title: "Datos de la marca" },
-    { id: 2, title: "Tipo de logo" },
-    { id: 3, title: "Paleta de colores" },
-    { id: 4, title: "Sector y Preferencias" },
+    { id: 2, title: "Industria y Sector" },
+    { id: 3, title: "Paleta de Colores" },
+    { id: 4, title: "✨ Resumen de tu Marca" },
     { id: 5, title: " ✨ Logo generado" }
   ];
 

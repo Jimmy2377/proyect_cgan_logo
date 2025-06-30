@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+//pages/Dashboard.tsx
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, ChevronLeft, Plus, User } from "lucide-react";
+import { Plus, User, PanelLeftClose, PanelLeft } from "lucide-react";
 import { dashboardStyles } from "../styles/dashboardStyles";
 import logoletra  from "../assets/logoletrawhite.png";
 import logoisotipo from "../assets/logoarieswhite.png";
@@ -11,15 +12,16 @@ import { MultiStepForm } from "../components/MultiStepForm";
 interface SidebarProps {
   isExpanded: boolean;
   onToggle: () => void;
-  user: any; // O puedes usar un tipo más específico como User de Supabase
+  user: any; // se puede usar un tipo más específico como User de Supabase
   onLogout: () => void;
   onNewProject: () => void;
+  sidebarRef: React.RefObject<HTMLDivElement | null>;
 }
 
 // Componente Sidebar reutilizable
-const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject }: SidebarProps) => {
+const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject, sidebarRef }: SidebarProps) => {
   return (
-    <div className={dashboardStyles.sidebar.container(isExpanded)}>
+    <div ref={sidebarRef} className={dashboardStyles.sidebar.container(isExpanded)}>
       <div className={dashboardStyles.common.flexCol + " h-full"}>
         {/* Header */}
         <div className={dashboardStyles.sidebar.header(isExpanded)}>
@@ -37,9 +39,9 @@ const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject }: Sidebar
             aria-label={isExpanded ? "Minimizar menú" : "Expandir menú"}
           >
             {isExpanded ? (
-              <ChevronLeft className="w-4 h-4" />
+              <PanelLeftClose className="w-5 h-5" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <PanelLeft className="w-5 h-5" />
             )}
           </button>
         </div>
@@ -98,6 +100,7 @@ export default function Dashboard() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1); // control del paso
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user }, error }) => {
@@ -109,6 +112,22 @@ export default function Dashboard() {
       }
     });
   }, [navigate]);
+
+  // Efecto para manejar clicks fuera del sidebar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && 
+          !sidebarRef.current.contains(event.target as Node) && 
+          sidebarExpanded) {
+        setSidebarExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [sidebarExpanded]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -154,13 +173,14 @@ const goToPreviousPage = () => {
         user={user}
         onLogout={handleLogout}
         onNewProject={handleNewProject}
+        sidebarRef={sidebarRef}
       />
 
       {/* Header */}
       <div className={dashboardStyles.header.container(sidebarExpanded)}>
         <div className={dashboardStyles.header.content}>
           <img 
-            src={logoisotipo}
+            src={logoisotipo} 
             className={dashboardStyles.header.logo}
             alt="Logo"
           />
@@ -174,11 +194,10 @@ const goToPreviousPage = () => {
             currentPage={currentPage}
             goToNextPage={goToNextPage}
             goToPreviousPage={goToPreviousPage}
-            user={user}
+            user={user} 
           />
         </div>
       </div>
-
 
       {/* Overlay para móviles cuando el sidebar está expandido */}
       {sidebarExpanded && (

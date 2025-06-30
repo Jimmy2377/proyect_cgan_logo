@@ -2,7 +2,7 @@
 export const dashboardStyles = {
   // Sidebar styles
   sidebar: {
-    container: (isExpanded: boolean) => `
+    container: (isExpanded: boolean) => ` 
       fixed left-0 top-0 h-screen bg-[#1D143B] text-[#FFFFFF] transition-all duration-500 ease-in-out z-50
       ${isExpanded ? 'w-64' : 'w-9'}
     `,
@@ -10,7 +10,7 @@ export const dashboardStyles = {
       pt-[20px] pb-[32px] flex items-center justify-between
       ${isExpanded ? 'px-[33px]' : 'px-[5px]'}
     `,
-    toggleButton: "text-[#FFFFFF] hover:text-[#FFFFFF] bg-transparent border-none outline-none focus:outline-none",
+    toggleButton: "text-[#FFFFFF] bg-transparent border-none outline-none focus:outline-none",
     logo: "h-full max-h-[30px] w-auto",
     newProjectButton: (isExpanded: boolean) => `
       bg-gradient-to-r from-[#B63DF8] to-[#4CB9FD] hover:bg-gradient-to-r hover:from-[#4CB9FD] hover:to-[#B63DF8] active:bg-white 
@@ -43,22 +43,21 @@ export const dashboardStyles = {
   // Header styles
   header: {
     container: (_sidebarExpanded: boolean) => `
-      fixed top-0 bg-transparent z-40 transition-none
-      ml-[66px] pl-12 pt-[20px]
+      fixed top-[0px] left-[0px] right-[0px] bg-[#1A002E] py-[20px] px-[66px] z-40 transition-none
     `,
-    content: "flex items-center p-6",
-    logo: "h-[50px] w-auto",
+    content: "flex items-center",
+    logo: "h-[40px] w-auto", 
   },
 
   // Main content styles
   main: {
     container: (_sidebarExpanded: boolean) => `
       min-h-screen bg-[#1a002e] transition-none
-      ml-[66px] pl-12 pt-[86px]
+      ml-[66px] pr-[24px] mt-[80px]
     `,
-    overlay: "fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden",
+    overlay: "fixed inset-0 bg-black bg-opacity-50 lg:hidden",
     loading: "min-h-screen flex items-center justify-center bg-[#1a002e]",
-    loadingText: "text-lg text-[#FFFFFF]",
+    loadingText: "text-[18px] text-[#FFFFFF]",
   },
 
   // Common styles
