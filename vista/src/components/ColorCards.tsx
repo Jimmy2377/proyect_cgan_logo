@@ -1,7 +1,7 @@
 // src/components/ColorCards.tsx
 import { useState } from 'react';
 
-interface Card {
+interface Card { 
   id: number;
   title: string;
   description: string;

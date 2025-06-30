@@ -7,6 +7,7 @@ import { validateName } from "../hooks/validationUtils";
 import ColorCards from "./ColorCards";
 import IndustrySectorSelector from "./IndustrySectorSelector";
 import { BrandSummary } from "./BrandSummary";
+import { useStep2Validation } from "../hooks/useStep2Validation";
 
 interface MultiStepFormProps {
   currentPage: number;
@@ -16,7 +17,7 @@ interface MultiStepFormProps {
 }
 
 export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, user }: MultiStepFormProps) {
-// Estado para el formulario
+  // Estado para el formulario
   const [formData, setFormData] = useState({
     name: '',
     selectedColors: new Set<number>(),
@@ -25,14 +26,18 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
     selectedTag: ''
   }); 
   
-  // Estado para errores
+  // Estado para errores (excepto paso 2)
   const [errors, setErrors] = useState({
     name: '',
-    colors: '',
-    industry: '',
-    sector: '',
-    tag: ''
+    colors: ''
   });
+
+  // Hook para validación del paso 2
+  const {
+    errors: step2Errors,
+    validateStep2,
+    handleSelectionChange: handleStep2SelectionChange
+  } = useStep2Validation();
 
   // Manejador de cambios en el input
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,16 +69,8 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
       selectedTag: tag
     }));
     
-    // Limpiar errores si el usuario selecciona
-    if (errors.industry && industry) {
-      setErrors(prev => ({ ...prev, industry: '' }));
-    }
-    if (errors.sector && sector) {
-      setErrors(prev => ({ ...prev, sector: '' }));
-    }
-    if (errors.tag && tag) {
-      setErrors(prev => ({ ...prev, tag: '' }));
-    }
+    // Usar el hook para manejar la limpieza de errores
+    handleStep2SelectionChange(industry, sector, tag);
   };
 
   // Validación en blur
@@ -94,24 +91,13 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
     }
     
     if (currentPage === 2) {
-      let hasErrors = false;
+      const isValid = validateStep2({
+        selectedIndustry: formData.selectedIndustry,
+        selectedSector: formData.selectedSector,
+        selectedTag: formData.selectedTag
+      });
       
-      if (!formData.selectedIndustry) {
-        setErrors(prev => ({ ...prev, industry: 'Debes seleccionar una industria' }));
-        hasErrors = true;
-      }
-      
-      if (!formData.selectedSector) {
-        setErrors(prev => ({ ...prev, sector: 'Debes seleccionar un sector' }));
-        hasErrors = true;
-      }
-      
-      if (!formData.selectedTag) {
-        setErrors(prev => ({ ...prev, tag: 'Debes seleccionar una etiqueta' }));
-        hasErrors = true;
-      }
-      
-      if (hasErrors) return; // No avanzar si hay errores
+      if (!isValid) return; // No avanzar si hay errores
     }
     
     if (currentPage === 3) {
@@ -169,17 +155,17 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
               />
             </div>
             
-            {/* Mostrar errores */}
-            {(errors.industry || errors.sector || errors.tag) && (
+            {/* Mostrar errores usando el hook */}
+            {(step2Errors.industry || step2Errors.sector || step2Errors.tag) && (
               <div className="mt-[16px] text-center">
-                {errors.industry && (
-                  <p className="text-[#F87171] text-[14px] mb-[8px]">{errors.industry}</p>
+                {step2Errors.industry && (
+                  <p className="text-[#F87171] text-[14px] mb-[8px]">{step2Errors.industry}</p>
                 )}
-                {errors.sector && (
-                  <p className="text-[#F87171] text-[14px] mb-[8px]">{errors.sector}</p>
+                {step2Errors.sector && (
+                  <p className="text-[#F87171] text-[14px] mb-[8px]">{step2Errors.sector}</p>
                 )}
-                {errors.tag && (
-                  <p className="text-[#F87171] text-[14px]">{errors.tag}</p>
+                {step2Errors.tag && (
+                  <p className="text-[#F87171] text-[14px]">{step2Errors.tag}</p>
                 )}
               </div>
             )}
@@ -213,49 +199,49 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
       </div>
 
       {/* Botones de navegación modernos */}
-<div className={formStyles.buttonRow}>
-  <button 
-    onClick={goToPreviousPage} 
-    disabled={currentPage === 1}
-    className={`${formStyles.buttonBack} ${
-      currentPage === 1 ? formStyles.buttonDisabled : ''
-    }`}
-  >
-    <svg 
-      className="w-[16px] h-[16px] transition-transform duration-300 group-hover:-translate-x-[2px]" 
-      fill="currentColor" 
-      viewBox="0 0 20 20"
-    >
-      <path 
-        fillRule="evenodd" 
-        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" 
-        clipRule="evenodd" 
-      />
-    </svg>
-    <span className="relative z-10">Anterior</span>
-  </button>
-  
-  <button 
-    onClick={handleNextStep}  
-    disabled={currentPage === 5}
-    className={`${formStyles.buttonNext} ${
-      currentPage === 5 ? formStyles.buttonDisabled : ''
-    }`}
-  >
-    <span className="relative z-10">Siguiente</span>
-    <svg 
-      className="w-[16px] h-[16px] transition-transform duration-300 group-hover:translate-x-[2px]" 
-      fill="currentColor" 
-      viewBox="0 0 20 20"
-    >
-      <path 
-        fillRule="evenodd" 
-        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" 
-        clipRule="evenodd" 
-      />
-    </svg>
-  </button>
-</div>
+      <div className={formStyles.buttonRow}>
+        <button 
+          onClick={goToPreviousPage} 
+          disabled={currentPage === 1}
+          className={`${formStyles.buttonBack} ${
+            currentPage === 1 ? formStyles.buttonDisabled : ''
+          }`}
+        >
+          <svg 
+            className="w-[16px] h-[16px] transition-transform duration-300 group-hover:-translate-x-[2px]" 
+            fill="currentColor" 
+            viewBox="0 0 20 20"
+          >
+            <path 
+              fillRule="evenodd" 
+              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" 
+              clipRule="evenodd" 
+            />
+          </svg>
+          <span className="relative z-10">Anterior</span>
+        </button>
+        
+        <button 
+          onClick={handleNextStep}  
+          disabled={currentPage === 5}
+          className={`${formStyles.buttonNext} ${
+            currentPage === 5 ? formStyles.buttonDisabled : ''
+          }`}
+        >
+          <span className="relative z-10">Siguiente</span>
+          <svg 
+            className="w-[16px] h-[16px] transition-transform duration-300 group-hover:translate-x-[2px]" 
+            fill="currentColor" 
+            viewBox="0 0 20 20"
+          >
+            <path 
+              fillRule="evenodd" 
+              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" 
+              clipRule="evenodd" 
+            />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
