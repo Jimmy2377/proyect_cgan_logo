@@ -46,7 +46,7 @@ export const dashboardStyles = {
       fixed top-[0px] left-[0px] right-[0px] bg-[#1A002E] py-[20px] px-[66px] z-40 transition-none
     `,
     content: "flex items-center",
-    logo: "h-[40px] w-auto", 
+    logo: "h-[40px] w-auto mr-[25px]", 
   },
 
   // Main content styles

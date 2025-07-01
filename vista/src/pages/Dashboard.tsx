@@ -7,19 +7,32 @@ import { dashboardStyles } from "../styles/dashboardStyles";
 import logoletra  from "../assets/logoletrawhite.png";
 import logoisotipo from "../assets/logoarieswhite.png";
 import { MultiStepForm } from "../components/MultiStepForm";
+import { useCredits } from "../hooks/useCredits";
+import { CreditsDisplay } from "../components/CreditsDisplay";
 
 // Tipos para los props del Sidebar
 interface SidebarProps {
   isExpanded: boolean;
   onToggle: () => void;
-  user: any; // se puede usar un tipo más específico como User de Supabase
+  user: any;
   onLogout: () => void;
   onNewProject: () => void;
   sidebarRef: React.RefObject<HTMLDivElement | null>;
+  credits: number;
+  creditsLoading: boolean;
 }
 
-// Componente Sidebar reutilizable
-const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject, sidebarRef }: SidebarProps) => {
+//Sidebar
+const Sidebar = ({ 
+  isExpanded, 
+  onToggle, 
+  user, 
+  onLogout, 
+  onNewProject, 
+  sidebarRef,
+  credits,
+  creditsLoading 
+}: SidebarProps) => {
   return (
     <div ref={sidebarRef} className={dashboardStyles.sidebar.container(isExpanded)}>
       <div className={dashboardStyles.common.flexCol + " h-full"}>
@@ -45,6 +58,17 @@ const Sidebar = ({ isExpanded, onToggle, user, onLogout, onNewProject, sidebarRe
             )}
           </button>
         </div>
+
+        {/* Credits Display */}
+        {isExpanded && (
+          <div className="pb-[10px] justify-items-center">
+            <CreditsDisplay 
+              credits={credits} 
+              loading={creditsLoading} 
+              variant="sidebar" 
+            />
+          </div>
+        )} 
 
         {/* New Project Button */}
         <div className={isExpanded ? "px-[33px] py-4" : "px-1 py-4 flex justify-center"}>
@@ -99,8 +123,11 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1); // control del paso
+  const [currentPage, setCurrentPage] = useState(1);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  
+  // para manejar créditos
+  const { credits, loading: creditsLoading, error: creditsError, useCredits: consumeCredits, refreshCredits } = useCredits(user?.id);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user }, error }) => {
@@ -112,6 +139,14 @@ export default function Dashboard() {
       }
     });
   }, [navigate]);
+
+  // Mostrar error de créditos si existe
+  useEffect(() => {
+    if (creditsError) {
+      console.error("Error en créditos:", creditsError);
+      // Opcionalmente mostrar una notificación al usuario
+    }
+  }, [creditsError]);
 
   // Efecto para manejar clicks fuera del sidebar
   useEffect(() => {
@@ -134,9 +169,10 @@ export default function Dashboard() {
     navigate("/");
   };
 
-  const handleNewProject = () => {
+  const handleNewProject = async () => {
     console.log("Creando nuevo proyecto...");
-    // Lógica para crear nuevo proyecto
+    // Reiniciar al paso 1 para nuevo proyecto
+    setCurrentPage(1);
   };
 
   const toggleSidebar = () => {
@@ -151,18 +187,18 @@ export default function Dashboard() {
     );
   }
 
-  //Estados y lógica de navegación del formulario
+  // Estados y lógica de navegación del formulario
   const goToNextPage = () => {
-  if (currentPage < 5) {
-    setCurrentPage(prev => prev + 1);
-  }
-};
+    if (currentPage < 5) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
 
-const goToPreviousPage = () => {
-  if (currentPage > 1) {
-    setCurrentPage(prev => prev - 1);
-  }
-};
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#1a002e] overflow-hidden">
@@ -174,6 +210,8 @@ const goToPreviousPage = () => {
         onLogout={handleLogout}
         onNewProject={handleNewProject}
         sidebarRef={sidebarRef}
+        credits={credits}
+        creditsLoading={creditsLoading}
       />
 
       {/* Header */}
@@ -183,6 +221,12 @@ const goToPreviousPage = () => {
             src={logoisotipo} 
             className={dashboardStyles.header.logo}
             alt="Logo"
+          />
+          {/* Display de créditos en el header */}
+          <CreditsDisplay 
+            credits={credits} 
+            loading={creditsLoading} 
+            variant="header"
           />
         </div>
       </div>
@@ -194,7 +238,7 @@ const goToPreviousPage = () => {
             currentPage={currentPage}
             goToNextPage={goToNextPage}
             goToPreviousPage={goToPreviousPage}
-            user={user} 
+            user={user}
           />
         </div>
       </div>
