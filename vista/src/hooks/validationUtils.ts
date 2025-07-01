@@ -1,4 +1,4 @@
-// src/utils/validationUtils.ts
+// src/hooks/validationUtils.ts
 export const validateName = (name: string): string => {
   if (!name || name.trim().length === 0) {
     return 'El nombre de la marca es requerido';

@@ -1,13 +1,12 @@
 // src/components/MultiStepForm.tsx
+import React from 'react';
 import { ProgressSteps } from "./ProgressSteps";
 import { formStyles } from "../styles/formStyles";
-import React, { useState } from 'react';
 import { NeonInput } from "../components/ui/NeonInput";
-import { validateName } from "../hooks/validationUtils";
 import ColorCards from "./ColorCards";
 import IndustrySectorSelector from "./IndustrySectorSelector";
 import { BrandSummary } from "./BrandSummary";
-import { useStep2Validation } from "../hooks/useStep2Validation";
+import { useMultiStepForm } from "../hooks/useMultiStepForm";
 
 interface MultiStepFormProps {
   currentPage: number;
@@ -17,98 +16,35 @@ interface MultiStepFormProps {
 }
 
 export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, user }: MultiStepFormProps) {
-  // Estado para el formulario
-  const [formData, setFormData] = useState({
-    name: '',
-    selectedColors: new Set<number>(),
-    selectedIndustry: '',
-    selectedSector: '',
-    selectedTag: ''
-  }); 
-  
-  // Estado para errores (excepto paso 2)
-  const [errors, setErrors] = useState({
-    name: '',
-    colors: ''
-  });
-
-  // Hook para validación del paso 2
+  // Hook principal que maneja todo el estado y validaciones
   const {
-    errors: step2Errors,
-    validateStep2,
-    handleSelectionChange: handleStep2SelectionChange
-  } = useStep2Validation();
+    formData,
+    updateName,
+    updateColors,
+    updateIndustrySector,
+    validateCurrentStep,
+    handleNameBlur,
+    step1Errors,
+    step2Errors,
+    step3Errors
+  } = useMultiStepForm();
 
-  // Manejador de cambios en el input
+  // Manejador de cambios en el input de nombre
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFormData(prev => ({ ...prev, name: value }));
-    
-    // Limpiar error si el usuario está escribiendo
-    if (errors.name && value.trim().length > 0) {
-      setErrors(prev => ({ ...prev, name: '' }));
-    }
+    updateName(e.target.value);
   };
 
-  // Manejador de cambios en las tarjetas de colores
-  const handleColorChange = (selectedCards: Set<number>) => {
-    setFormData(prev => ({ ...prev, selectedColors: selectedCards }));
-    
-    // Limpiar error si el usuario selecciona colores
-    if (errors.colors && selectedCards.size > 0) {
-      setErrors(prev => ({ ...prev, colors: '' }));
-    }
-  };
-
-  // Manejador de cambios en industria, sector y etiqueta
-  const handleIndustrySectorChange = (industry: string, sector: string, tag: string) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      selectedIndustry: industry,
-      selectedSector: sector,
-      selectedTag: tag
-    }));
-    
-    // Usar el hook para manejar la limpieza de errores
-    handleStep2SelectionChange(industry, sector, tag);
-  };
-
-  // Validación en blur
-  const handleNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const error = validateName(value);
-    setErrors(prev => ({ ...prev, name: error }));
+  // Manejador de blur en el input de nombre
+  const handleNameBlurEvent = (e: React.FocusEvent<HTMLInputElement>) => {
+    handleNameBlur(e.target.value);
   };
 
   // Validar antes de avanzar al siguiente paso
   const handleNextStep = () => {
-    if (currentPage === 1) {
-      const nameError = validateName(formData.name);
-      if (nameError) {
-        setErrors(prev => ({ ...prev, name: nameError }));
-        return; // No avanzar si hay errores
-      }
+    const isValid = validateCurrentStep(currentPage);
+    if (isValid) {
+      goToNextPage();
     }
-    
-    if (currentPage === 2) {
-      const isValid = validateStep2({
-        selectedIndustry: formData.selectedIndustry,
-        selectedSector: formData.selectedSector,
-        selectedTag: formData.selectedTag
-      });
-      
-      if (!isValid) return; // No avanzar si hay errores
-    }
-    
-    if (currentPage === 3) {
-      if (formData.selectedColors.size === 0) {
-        setErrors(prev => ({ ...prev, colors: 'Debes seleccionar al menos un color' }));
-        return; // No avanzar si no hay colores seleccionados
-      }
-    }
-    
-    // Si no hay errores, avanza al siguiente
-    goToNextPage();
   };
 
   return (
@@ -129,8 +65,8 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
                 placeholder="Ingresa el nombre de la Marca..."
                 value={formData.name}
                 onChange={handleNameChange}
-                onBlur={handleNameBlur}
-                error={errors.name}
+                onBlur={handleNameBlurEvent}
+                error={step1Errors.name}
                 required
                 className="mx-auto"
               />
@@ -148,14 +84,14 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
             
             <div className="flex-1 min-h-[500px]">
               <IndustrySectorSelector 
-                onSelectionChange={handleIndustrySectorChange}
+                onSelectionChange={updateIndustrySector}
                 selectedIndustry={formData.selectedIndustry}
                 selectedSector={formData.selectedSector}
                 selectedTag={formData.selectedTag}
               />
             </div>
             
-            {/* Mostrar errores usando el hook */}
+            {/* Mostrar errores del paso 2 */}
             {(step2Errors.industry || step2Errors.sector || step2Errors.tag) && (
               <div className="mt-[16px] text-center">
                 {step2Errors.industry && (
@@ -179,10 +115,10 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
             </p>
             <ColorCards 
               selectedCards={formData.selectedColors}
-              onChange={handleColorChange}
+              onChange={updateColors}
             />
-            {errors.colors && (
-              <p className="text-[#F87171] text-[14px] mt-[16px] text-center">{errors.colors}</p>
+            {step3Errors.colors && (
+              <p className="text-[#F87171] text-[14px] mt-[16px] text-center">{step3Errors.colors}</p>
             )}
           </div>
         )}
@@ -240,7 +176,7 @@ export function MultiStepForm({ currentPage, goToNextPage, goToPreviousPage, use
               clipRule="evenodd" 
             />
           </svg>
-        </button>
+          </button>
       </div>
     </div>
   );
